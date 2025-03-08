@@ -6,6 +6,7 @@ class PokemonDetails {
   final double weight;
   final List<String> abilities;
   final List<String> types;
+  final List<String> moves;
   final int hp;
   final int attack;
   final int defense;
@@ -13,21 +14,21 @@ class PokemonDetails {
   final int specialDefense;
   final int speed;
 
-  PokemonDetails({
-    required this.id,
-    required this.name,
-    required this.imageUrl,
-    required this.height,
-    required this.weight,
-    required this.abilities,
-    required this.types,
-    required this.hp,
-    required this.attack,
-    required this.defense,
-    required this.specialAttack,
-    required this.specialDefense,
-    required this.speed,
-  });
+  PokemonDetails(
+      {required this.id,
+      required this.name,
+      required this.imageUrl,
+      required this.height,
+      required this.weight,
+      required this.abilities,
+      required this.types,
+      required this.hp,
+      required this.attack,
+      required this.defense,
+      required this.specialAttack,
+      required this.specialDefense,
+      required this.speed,
+      required this.moves});
 
   factory PokemonDetails.fromMap(Map<String, dynamic> map) {
     // Extraindo as estatísticas da lista 'stats'
@@ -56,6 +57,9 @@ class PokemonDetails {
           .toList(),
       types: (map['types'] as List)
           .map((type) => type['type']['name'] as String)
+          .toList(),
+      moves: (map["moves"] as List)
+          .map((move) => move["move"]["name"] as String)
           .toList(),
       hp: hp,
       attack: attack,
