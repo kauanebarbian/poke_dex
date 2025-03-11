@@ -13,7 +13,6 @@ class PokemonListModel {
     required this.results,
   });
 
-  // Converte um mapa (JSON) em um objeto PokemonListModel.
   factory PokemonListModel.fromMap(Map<String, dynamic> map) {
     var resultsList = map['results'] as List;
     List<Pokemon> pokemonList =

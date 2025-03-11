@@ -16,6 +16,7 @@ class _PokemonDetailPageState extends State<PokemonDetailPage> {
   late PokemonDetails _pokemonDetails;
   bool _isLoading = true;
   String _selectedTab = "info";
+  Map<String, dynamic> evolution = {};
 
   @override
   void initState() {
@@ -48,7 +49,7 @@ class _PokemonDetailPageState extends State<PokemonDetailPage> {
           : Stack(
               children: [
                 Positioned(
-                  top: 5,
+                  top: 1,
                   left: 20,
                   child: Text(
                     _pokemonDetails.name,
@@ -60,7 +61,7 @@ class _PokemonDetailPageState extends State<PokemonDetailPage> {
                   ),
                 ),
                 Positioned(
-                  top: 50,
+                  top: 45,
                   left: 20,
                   child: Row(
                     children: _pokemonDetails.types.map((type) {
@@ -82,7 +83,7 @@ class _PokemonDetailPageState extends State<PokemonDetailPage> {
                   ),
                 ),
                 Positioned(
-                  top: 140,
+                  top: 80,
                   left: 0,
                   right: 0,
                   child: Center(
@@ -94,9 +95,9 @@ class _PokemonDetailPageState extends State<PokemonDetailPage> {
                   ),
                 ),
                 DraggableScrollableSheet(
-                  initialChildSize: 0.55,
+                  initialChildSize: 0.68,
                   minChildSize: 0.55,
-                  maxChildSize: 0.85,
+                  maxChildSize: 0.68,
                   builder: (context, scrollController) {
                     return Container(
                       decoration: BoxDecoration(
@@ -171,7 +172,7 @@ class _PokemonDetailPageState extends State<PokemonDetailPage> {
       case "moves":
         return _buildHabilidades(_pokemonDetails);
       case "evolution":
-        return Text("Informações de evolução aqui");
+        return buildEvolucao(_pokemonDetails);
       case "info":
       default:
         return _buildInformacoesBasicas(_pokemonDetails);
@@ -373,6 +374,95 @@ class _PokemonDetailPageState extends State<PokemonDetailPage> {
           _buildStatRow("Velocidade", pokemon.speed),
         ],
       ),
+    );
+  }
+
+  Future<List<PokemonEvolution>> evolutionsFuture(String species) async {
+    var speciesData = await Dio().get(species);
+    var chainEvolutionUrl = speciesData.data["evolution_chain"]["url"];
+
+    var chainEvolutionData = await Dio().get(chainEvolutionUrl);
+
+    ///"evolves_to": list<>
+    ///"species": item
+    var listEvolution = <PokemonEvolution>[];
+
+    var chain = chainEvolutionData.data["chain"];
+
+    var splitedUrl = (chain["species"]["url"] as String).split("/");
+    var id = splitedUrl[splitedUrl.length - 2];
+    var imageUrl =
+        "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/$id.png";
+
+    listEvolution.add(
+        PokemonEvolution(name: chain["species"]["name"], imageUrl: imageUrl));
+
+    var listEvolvChain = chain["evolves_to"] as List<dynamic>;
+
+    _buildEvolveList(listEvolvChain, listEvolution);
+
+    return listEvolution;
+  }
+
+  void _buildEvolveList(
+      List<dynamic> listEvolvChain, List<PokemonEvolution> listEvolution) {
+    for (var item in listEvolvChain) {
+      var splitedUrl = (item['species']["url"] as String).split("/");
+      var id = splitedUrl[splitedUrl.length - 2];
+      var imageUrl =
+          "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/$id.png";
+
+      listEvolution.add(
+          PokemonEvolution(name: item["species"]["name"], imageUrl: imageUrl));
+
+      if ((item["evolves_to"] as List<dynamic>).isNotEmpty) {
+        _buildEvolveList(item["evolves_to"], listEvolution);
+      }
+    }
+  }
+
+  Widget buildEvolucao(PokemonDetails pokemonDetails) {
+    return FutureBuilder<List<PokemonEvolution>>(
+      future: evolutionsFuture(pokemonDetails.species),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Erro ao carregar as evoluções.'));
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return const Text("Este Pokémon não possui evoluções.");
+        } else {
+          final evolutions = snapshot.data!;
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: evolutions.map((evolution) {
+                    return Column(
+                      children: [
+                        Image.network(
+                          evolution.imageUrl,
+                          height: 100,
+                          width: 100,
+                          errorBuilder: (context, error, stackTrace) {
+                            return const Icon(Icons.image_not_supported);
+                          },
+                        ),
+                        Text(
+                          evolution.name,
+                          style: const TextStyle(fontSize: 16),
+                        ),
+                      ],
+                    );
+                  }).toList(),
+                ),
+              ),
+            ],
+          );
+        }
+      },
     );
   }
 }

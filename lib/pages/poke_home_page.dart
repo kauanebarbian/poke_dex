@@ -26,7 +26,6 @@ class _PokeHomePageState extends State<PokeHomePage> {
     _fetchPokemons();
   }
 
-  // Função para buscar os Pokémons
   Future<void> _fetchPokemons() async {
     final dio = Dio();
     try {
@@ -35,8 +34,7 @@ class _PokeHomePageState extends State<PokeHomePage> {
       var model = PokemonListModel.fromMap(response.data);
       setState(() {
         _pokemonList = model.results;
-        _filteredPokemonList =
-            _pokemonList; // Inicialmente, lista filtrada é igual à lista completa
+        _filteredPokemonList = _pokemonList;
         _isLoading = false;
       });
     } catch (e) {
@@ -47,7 +45,6 @@ class _PokeHomePageState extends State<PokeHomePage> {
     }
   }
 
-  // Função que retorna a cor do tipo
   Color _getColorForType(String type) {
     switch (type) {
       case 'grass':
@@ -87,12 +84,11 @@ class _PokeHomePageState extends State<PokeHomePage> {
     }
   }
 
-  // Função para exibir o Grid de Pokémons
   Widget _buildPokemonGrid(List<Pokemon> pokemonList) {
     return SliverGrid(
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
-        crossAxisSpacing: 0.5, // 0.5 de espaçamento entre os cards
+        crossAxisSpacing: 0.5,
         mainAxisSpacing: 5,
         childAspectRatio: 0.8,
       ),
@@ -106,7 +102,6 @@ class _PokeHomePageState extends State<PokeHomePage> {
     );
   }
 
-  // Função para construir o Card do Pokémon
   Widget _buildPokemonCard(Pokemon pokemon) {
     return FutureBuilder<Map<String, dynamic>>(
       future: _fetchPokemonDetails(pokemon.url),
@@ -132,10 +127,6 @@ class _PokeHomePageState extends State<PokeHomePage> {
             elevation: 3,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10.0),
-              // side: BorderSide(
-              //   color: const Color.fromARGB(255, 100, 99, 99),
-              //   width: 2,
-              // ), // Borda preta
             ),
             color: color,
             child: InkWell(
@@ -198,7 +189,6 @@ class _PokeHomePageState extends State<PokeHomePage> {
                     ],
                   ),
                   const SizedBox(height: 8),
-                  // Exibindo os tipos do Pokémon abaixo do nome
                 ],
               ),
             ),
@@ -209,14 +199,12 @@ class _PokeHomePageState extends State<PokeHomePage> {
     );
   }
 
-  // Função para buscar os detalhes do Pokémon
   Future<Map<String, dynamic>> _fetchPokemonDetails(String url) async {
     final dio = Dio();
     final response = await dio.get(url);
     return response.data;
   }
 
-  // Função para filtrar a lista de Pokémons pela pesquisa
   void _filterPokemons(String query) {
     if (query.isEmpty) {
       setState(() {
@@ -243,11 +231,9 @@ class _PokeHomePageState extends State<PokeHomePage> {
           : _errorMessage != null
               ? Center(child: Text(_errorMessage!))
               : Padding(
-                  padding:
-                      const EdgeInsets.all(8.0), // Adicionando padding ao redor
+                  padding: const EdgeInsets.all(8.0),
                   child: CustomScrollView(
                     slivers: [
-                      // Barra de pesquisa
                       SliverToBoxAdapter(
                         child: Padding(
                           padding: const EdgeInsets.symmetric(
@@ -255,8 +241,7 @@ class _PokeHomePageState extends State<PokeHomePage> {
                           child: TextField(
                             controller: _searchController,
                             onChanged: (query) {
-                              _filterPokemons(
-                                  query); // Filtro dinâmico de Pokémons
+                              _filterPokemons(query);
                             },
                             decoration: InputDecoration(
                               labelText: 'Pesquise um Pokémon...',
@@ -267,7 +252,6 @@ class _PokeHomePageState extends State<PokeHomePage> {
                           ),
                         ),
                       ),
-                      // Grid de Pokémon
                       _buildPokemonGrid(_filteredPokemonList),
                     ],
                   ),
