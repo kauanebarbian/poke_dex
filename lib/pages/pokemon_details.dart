@@ -234,11 +234,11 @@ class _PokemonDetailPageState extends State<PokemonDetailPage> {
       case 'defesa':
         icon = FontAwesomeIcons.shieldAlt;
         break;
-      case 'ataque special':
-        icon = FontAwesomeIcons.magic;
+      case 'ataque especial':
+        icon = FontAwesomeIcons.wandSparkles;
         break;
-      case 'defesa special':
-        icon = FontAwesomeIcons.shieldVirus;
+      case 'defesa especial':
+        icon = FontAwesomeIcons.shieldHeart;
         break;
       case 'velocidade':
         icon = FontAwesomeIcons.tachometerAlt;
@@ -306,7 +306,7 @@ class _PokemonDetailPageState extends State<PokemonDetailPage> {
               ],
             ),
             _buildInfoCard(
-              title: "Ataques",
+              title: "Habilidades",
               content: pokemon.abilities,
             ),
           ],
